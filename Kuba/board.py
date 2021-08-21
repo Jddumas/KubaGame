@@ -1,31 +1,62 @@
+import copy
 import pygame
+from .constants import BLACK, ROWS, COLS, RED, SQUARE_SIZE, LIGHT_GREY, GREY, WHITE
+from .piece import Piece
 
-from .constants import BLACK, ROWS, RED, SQUARE_SIZE
+
+class Board:
+    def __init__(self):
+        self.board = []
+        self.black_left = 8
+        self.white_left = 8
+        self.red_left = 13
+        self.create_board()
+
+    def draw_squares(self, win):
+        win.fill(GREY)
+        for row in range(ROWS):
+            for col in range(row % 2, ROWS, 2):
+                pygame.draw.rect(win, LIGHT_GREY, (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+
+    # def move(self, piece, row, col):
+    #     self.board[piece.row][piece.col], self.board[row][col]
+
+    def get_piece(self, row, col):
+        return self.board[row][col]
+
+    def create_board(self):
+        board = [['W', 'W', 'X', 'X', 'X', 'B', 'B'],
+                 ['W', 'W', 'X', 'R', 'X', 'B', 'B'],
+                 ['X', 'X', 'R', 'R', 'R', 'X', 'X'],
+                 ['X', 'R', 'R', 'R', 'R', 'R', 'X'],
+                 ['X', 'X', 'R', 'R', 'R', 'X', 'X'],
+                 ['B', 'B', 'X', 'R', 'X', 'W', 'W'],
+                 ['B', 'B', 'X', 'X', 'X', 'W', 'W']]
+        for row in range(ROWS):
+            self.board.append([])
+            for col in range(COLS):
+                if board[row][col] == "W":
+                    self.board[row].append(Piece(row, col, WHITE))
+                elif board[row][col] == "B":
+                    self.board[row].append(Piece(row, col, BLACK))
+                elif board[row][col] == "R":
+                    self.board[row].append(Piece(row, col, RED))
+                else:
+                    self.board[row].append("X")
+
+    def draw(self, win):
+        self.draw_squares(win)
+        for row in range(ROWS):
+            for col in range(COLS):
+                piece = self.board[row][col]
+                if piece != "X":
+                    piece.draw(win)
+
 
 class KubaGame:
     """This KubaGame class holds the Kuba Board, the players, marbles, and other game functionality.
         It also holds all the methods for the game including the rules and validates correct moves. The players
         will interact with this class to play the game. It does not communicate with any other classes."""
-
-    def draw_squares(self, win):
-        win.fill(BLACK)
-        for row in range(ROWS):
-            for col in range(row % 2, ROWS, 2):
-                pygame.draw.rect(win, RED, (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
-
-    def calc_piece_pos(self):
-        x = 0
-        y = 0
-        # for each piece
-        for i in range(6):
-            for j in range(6):
-                if self._board[i][j] == "W":
-                    pass
-                elif self._board[i][j] == "B":
-                    pass
-                j += 1
-            i += 1
-
 
     def __init__(self, player_1, player_2):
         """Initializes the players A and B with which color they are. Also initializes
@@ -44,15 +75,6 @@ class KubaGame:
         self._player_1_last_captured = 0
         self._player_2_last_captured = 0
 
-        # init board
-        self._board = [['W', 'W', 'X', 'X', 'X', 'B', 'B'],
-                       ['W', 'W', 'X', 'R', 'X', 'B', 'B'],
-                       ['X', 'X', 'R', 'R', 'R', 'X', 'X'],
-                       ['X', 'R', 'R', 'R', 'R', 'R', 'X'],
-                       ['X', 'X', 'R', 'R', 'R', 'X', 'X'],
-                       ['B', 'B', 'X', 'R', 'X', 'W', 'W'],
-                       ['B', 'B', 'X', 'X', 'X', 'W', 'W']]
-
         # for Ko Rule
         self._last_board = []
         self._last_player_1_board = []
@@ -61,12 +83,14 @@ class KubaGame:
         self._current_turn = None
         self._winner = None
 
+
     def get_player_color(self, playername):
         """Returns the player's color"""
         if playername == self._player_1:
             return self._player_1_color
         if playername == self._player_2:
             return self._player_2_color
+
 
     def set_current_turn(self, player):
         """Sets whose turn it is"""
@@ -75,9 +99,11 @@ class KubaGame:
         if player == self._player_2:
             self._current_turn = self._player_1
 
+
     def get_current_turn(self):
         """Returns the player whose turn it is. Returns None if no player the first move. Takes no parameters."""
         return self._current_turn
+
 
     def set_winner(self, player):
         """Sets the winning player"""
@@ -86,9 +112,11 @@ class KubaGame:
         if player == self._player_2:
             self._winner = self._player_2
 
+
     def get_winner(self):
         """Takes no parameters. Returns the name of the winning player. If no player has won, returns None."""
         return self._winner
+
 
     def get_captured(self, player):
         """Shows marbles captured. Takes player's name as a parameter and returns number of Red
@@ -98,10 +126,12 @@ class KubaGame:
         if player == self._player_2:
             return self._player_2_captured
 
+
     def get_marble(self, coordinates):
         """Display marble at given coordinates. Parameter is the coordinates of a cell as a tuple and
             returns the marble at that location. If no marble is present, return X"""
         return self._board[coordinates[0]][coordinates[1]]
+
 
     def did_player_lose_their_balls(self, playername):
         """Creates a nested for loop to count up white and black marbles to check if any player lost theirs
@@ -137,6 +167,7 @@ class KubaGame:
                     # change winner
                     self.set_winner(playername)
 
+
     def get_marble_count(self):
         """Returns the amount of marbles of each color. Takes no parameters and
             returns number of white, black, and red marbles as a tuple in that order."""
@@ -152,6 +183,7 @@ class KubaGame:
                 if self._board[i][j] == 'R':
                     red_marbles += 1
         return white_marbles, black_marbles, red_marbles
+
 
     def end_of_turn(self, playername):
         """Checks for winning conditions, Ko rule, and changes player's turn"""
@@ -188,6 +220,7 @@ class KubaGame:
         # set last points for Ko Rule
         self._player_1_last_captured = self._player_1_captured
         self._player_2_last_captured = self._player_2_captured
+
 
     def rec_make_move_l(self, playername, coordinates, direction):
         """A recursive helper function for moving B"""
@@ -228,6 +261,7 @@ class KubaGame:
                 self._board[coordinates[0]][coordinates[1] - 1] = self._board[coordinates[0]][coordinates[1]]
                 return True
 
+
     def rec_make_move_r(self, playername, coordinates, direction):
         """A recursive helper function for moving r"""
         next_marble = self._board[coordinates[0]][coordinates[1] + 1]
@@ -266,6 +300,7 @@ class KubaGame:
                 # move current to next
                 self._board[coordinates[0]][coordinates[1] + 1] = self._board[coordinates[0]][coordinates[1]]
                 return True
+
 
     def rec_make_move_f(self, playername, coordinates, direction):
         """A recursive helper function for moving F"""
@@ -306,6 +341,7 @@ class KubaGame:
                 self._board[coordinates[0] - 1][coordinates[1]] = self._board[coordinates[0]][coordinates[1]]
                 return True
 
+
     def rec_make_move_b(self, playername, coordinates, direction):
         """A recursive helper function for moving B"""
         next_marble = self._board[coordinates[0] + 1][coordinates[1]]
@@ -345,11 +381,16 @@ class KubaGame:
                 self._board[coordinates[0] + 1][coordinates[1]] = self._board[coordinates[0]][coordinates[1]]
                 return True
 
+
     def make_move(self, playername, coordinates, direction):
         """Moves the marbles on the board in the direction desired. Validates the move and is responsible for tracking
         whose turn it is. Takes as parameters playername, coordinates (tuple), and direction (L, R, F, or B). The
         playername is the player attempting to input the move, with coordinates of the marble and the direction
         they wish to move the marble. Returns True of move is successful, else returns False."""
+
+        # get playername from which piece it was?
+
+        # get direction from coordinates
 
         # create a copy of board for Ko rule
         # save this board
@@ -583,3 +624,9 @@ class KubaGame:
                     self._board[coordinates[0]][coordinates[1]] = 'X'
                     self.end_of_turn(playername)
                     return True
+
+
+
+
+
+
