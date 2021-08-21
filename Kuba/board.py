@@ -1,17 +1,31 @@
-# Author: Jacob Dumas
-# Date: 6/2/2021
-# Description: A game named Kuba that consists of two players moving marbles around a 6 x 6 board. The
-#              game is won when a player has pushed 7 marbles off the board or the other player does not have
-#              any more marbles to play with.
+import pygame
 
-# for creating a deep copy for Ko rule
-import copy
-
+from .constants import BLACK, ROWS, RED, SQUARE_SIZE
 
 class KubaGame:
     """This KubaGame class holds the Kuba Board, the players, marbles, and other game functionality.
         It also holds all the methods for the game including the rules and validates correct moves. The players
         will interact with this class to play the game. It does not communicate with any other classes."""
+
+    def draw_squares(self, win):
+        win.fill(BLACK)
+        for row in range(ROWS):
+            for col in range(row % 2, ROWS, 2):
+                pygame.draw.rect(win, RED, (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+
+    def calc_piece_pos(self):
+        x = 0
+        y = 0
+        # for each piece
+        for i in range(6):
+            for j in range(6):
+                if self._board[i][j] == "W":
+                    pass
+                elif self._board[i][j] == "B":
+                    pass
+                j += 1
+            i += 1
+
 
     def __init__(self, player_1, player_2):
         """Initializes the players A and B with which color they are. Also initializes
